@@ -821,15 +821,17 @@
         </div>
 
         <div class="btn-row">
-          <button class="action" type="button" data-copy-target="mainPrompt">완성 프롬프트 복사</button>
+          <button class="action" type="button" data-copy-target="mainPrompt">영어 프롬프트 복사</button>
           <button class="action secondary" type="button" data-copy-target="koreanPrompt">한국어 프롬프트 복사</button>
           <button class="action secondary" type="button" id="copySelectedImages">선택 이미지 복사</button>
+          <button class="action secondary" type="button" id="copyEnglishWithImages">영어+선택 이미지 복사</button>
+          <button class="action secondary" type="button" id="copyKoreanWithImages">한글+선택 이미지 복사</button>
         </div>
         <div class="toast" id="toast" aria-live="polite"></div>
 
         <div class="sample">
           <p class="step">완성 예시</p>
-          <img src="assets/base-white-tee-white-pants.png" alt="흰 티와 흰 바지 기본 캐릭터 완성 예시">
+          <img src="_010e8c9c-0a45-40e3-b171-713a24c799b7.jpg" alt="SNS 프로필 화면 앞에 앉아 있는 웹툰 스타일 캐릭터 완성 예시">
           <p class="base-prompt" id="basePrompt"></p>
         </div>
       </aside>
@@ -837,7 +839,8 @@
   </div>
 
   <script>
-    const basePromptText = "A friendly stylized 3D cartoon character, front view, full body, standing in the center, neutral happy smile, wearing a plain white T-shirt, plain white pants, and casual white sneakers, plain white background, soft even lighting, square composition, no text";
+    const samplePromptEn = "Korean webtoon style SNS profile character, a cute black-haired character with round glasses, wearing a dark hoodie, gray rolled-up jeans, and black sneakers, sitting cross-legged in front of a large smartphone social media profile screen, smiling and making a peace sign, clean line art, soft cel shading, friendly profile mood, centered square composition, no readable text";
+    const samplePromptKo = "한국 웹툰 스타일 SNS 프로필 캐릭터, 검은 머리와 둥근 안경을 쓴 귀여운 캐릭터, 어두운 후드티와 회색 롤업 청바지, 검정 운동화를 착용, 커다란 스마트폰 SNS 프로필 화면 앞에 양반다리로 앉아 미소 지으며 브이 포즈를 하는 모습, 깔끔한 선화, 부드러운 셀 채색, 친근한 프로필 분위기, 정사각형 중앙 배치, 읽을 수 있는 글자 없음";
 
     const colors = {
       black: "#1f2937",
@@ -868,8 +871,8 @@
       "assets/previews/face/face-sheet-female-whitepants.png": [2172, 724],
       "assets/previews/body/body-sheet-male-whitepants.png": [1773, 887],
       "assets/previews/body/body-sheet-female-whitepants.png": [1254, 1254],
-      "assets/previews/hair/hair-sheet-male-whitepants.png": [1254, 1254],
-      "assets/previews/hair/hair-sheet-female-whitepants.png": [1536, 1024],
+      "assets/previews/hair/hair-sheet-male-whitepants-v2.png": [1254, 1881],
+      "assets/previews/hair/hair-sheet-female-whitepants-v2.png": [1536, 1536],
       "assets/previews/haircolor/haircolor-sheet-male-whitepants.png": [1536, 1024],
       "assets/previews/haircolor/haircolor-sheet-female-whitepants.png": [1536, 1024],
       "assets/previews/gender/gender-sheet-whitepants.png": [1717, 916],
@@ -878,7 +881,7 @@
       "assets/previews/glasses/glasses-sheet-items.png": [1536, 1024],
       "assets/previews/top/top-sheet-items.png": [1448, 1086],
       "assets/previews/bottom/bottom-sheet-items.png": [1254, 1254],
-      "assets/previews/shoes/shoes-sheet-items.png": [1254, 1254]
+      "assets/previews/shoes/shoes-sheet-items-v2.png": [1672, 1254]
     };
 
     const categories = [
@@ -1024,14 +1027,18 @@
         rule: "헤어스타일만 변경",
         desc: "머리 모양만 바뀌는 대표 예시입니다.",
         template: "Keep this exact same character (same face, body, pose, lighting, white background). Change ONLY the hairstyle: {value}. Full body, front view, centered, plain white background, no text.",
-        sprite: { src: "assets/previews/hair/hair-sheet-male-whitepants.png", cols: 3, rows: 2 },
-        feminineSprite: { src: "assets/previews/hair/hair-sheet-female-whitepants.png", cols: 3, rows: 2 },
+        sprite: { src: "assets/previews/hair/hair-sheet-male-whitepants-v2.png", cols: 3, rows: 3 },
+        feminineSprite: { src: "assets/previews/hair/hair-sheet-female-whitepants-v2.png", cols: 3, rows: 3 },
         options: [
           ["짧은 머리", "short haircut without bangs", "hair_short.png", "앞머리 없이 깔끔한 짧은 머리"],
           ["중간 가르마 머리", "center-parted layered hair", "hair_center.png", "가운데 가르마가 있는 레이어드 머리"],
           ["곱슬 머리", "curly hair with layers", "hair_curly.png", "레이어가 있는 풍성한 곱슬 머리"],
           ["긴 웨이브 머리", "long wavy hair", "hair_wavy.png", "부드러운 긴 웨이브 머리"],
-          ["단발 머리", "bob cut hair", "hair_bob.png", "턱선 부근의 단발 스타일"]
+          ["단발 머리", "bob cut hair", "hair_bob.png", "턱선 부근의 단발 스타일"],
+          ["포니테일", "high ponytail hair", "hair_ponytail.png", "높게 묶은 포니테일 스타일"],
+          ["양갈래 머리", "twin tails pigtail hair", "hair_pigtails.png", "양쪽으로 묶은 발랄한 머리"],
+          ["땋은 머리", "side braid hair", "hair_braid.png", "한쪽으로 내려오는 땋은 머리"],
+          ["번 헤어", "neat bun hair", "hair_bun.png", "깔끔하게 올려 묶은 번 헤어"]
         ]
       },
       {
@@ -1125,6 +1132,29 @@
         ]
       },
       {
+        key: "topColor",
+        label: "상의 색",
+        folder: "top",
+        rule: "상의 색만 변경",
+        desc: "선택한 상의의 색상만 바꾸는 옵션입니다.",
+        template: "Keep this exact same character (same face, body, pose, lighting, white background). Change ONLY the top clothing color to: {value}. Full body, front view, centered, plain white background, no text.",
+        colorOnly: true,
+        options: [
+          ["흰색", "white top color", "topcolor_white.png", "깨끗한 흰색 상의", "white"],
+          ["검정", "black top color", "topcolor_black.png", "단정한 검정 상의", "black"],
+          ["빨강", "red top color", "topcolor_red.png", "눈에 띄는 빨강 상의", "red"],
+          ["주황", "orange top color", "topcolor_orange.png", "밝은 주황 상의", "orange"],
+          ["노랑", "yellow top color", "topcolor_yellow.png", "선명한 노랑 상의", "yellow"],
+          ["초록", "green top color", "topcolor_green.png", "산뜻한 초록 상의", "green"],
+          ["파랑", "blue top color", "topcolor_blue.png", "깔끔한 파랑 상의", "blue"],
+          ["보라", "purple top color", "topcolor_purple.png", "부드러운 보라 상의", "purple"],
+          ["분홍", "pink top color", "topcolor_pink.png", "화사한 분홍 상의", "pink"],
+          ["회색", "gray top color", "topcolor_gray.png", "차분한 회색 상의", "gray"],
+          ["갈색", "brown top color", "topcolor_brown.png", "따뜻한 갈색 상의", "brown"],
+          ["민트", "mint top color", "topcolor_mint.png", "상쾌한 민트색 상의", "mint"]
+        ]
+      },
+      {
         key: "bottom",
         label: "하의",
         folder: "bottom",
@@ -1145,26 +1175,73 @@
         ]
       },
       {
+        key: "bottomColor",
+        label: "하의 색",
+        folder: "bottom",
+        rule: "하의 색만 변경",
+        desc: "선택한 하의의 색상만 바꾸는 옵션입니다.",
+        template: "Keep this exact same character (same face, body, pose, lighting, white background). Change ONLY the bottom clothing color to: {value}. Full body, front view, centered, plain white background, no text.",
+        colorOnly: true,
+        options: [
+          ["흰색", "white bottom color", "bottomcolor_white.png", "깨끗한 흰색 하의", "white"],
+          ["검정", "black bottom color", "bottomcolor_black.png", "단정한 검정 하의", "black"],
+          ["빨강", "red bottom color", "bottomcolor_red.png", "눈에 띄는 빨강 하의", "red"],
+          ["주황", "orange bottom color", "bottomcolor_orange.png", "밝은 주황 하의", "orange"],
+          ["노랑", "yellow bottom color", "bottomcolor_yellow.png", "선명한 노랑 하의", "yellow"],
+          ["초록", "green bottom color", "bottomcolor_green.png", "산뜻한 초록 하의", "green"],
+          ["파랑", "blue bottom color", "bottomcolor_blue.png", "깔끔한 파랑 하의", "blue"],
+          ["보라", "purple bottom color", "bottomcolor_purple.png", "부드러운 보라 하의", "purple"],
+          ["분홍", "pink bottom color", "bottomcolor_pink.png", "화사한 분홍 하의", "pink"],
+          ["회색", "gray bottom color", "bottomcolor_gray.png", "차분한 회색 하의", "gray"],
+          ["갈색", "brown bottom color", "bottomcolor_brown.png", "따뜻한 갈색 하의", "brown"],
+          ["민트", "mint bottom color", "bottomcolor_mint.png", "상쾌한 민트색 하의", "mint"]
+        ]
+      },
+      {
         key: "shoes",
         label: "신발",
         folder: "shoes",
         rule: "신발만 변경",
         desc: "사람이 신지 않은 신발의 형태만 보여주는 예시입니다.",
         template: "Keep this exact same character (same face, body, pose, lighting, white background). Change ONLY the shoes: {value}. Full body, front view, centered, plain white background, no text.",
-        sprite: { src: "assets/previews/shoes/shoes-sheet-items.png", cols: 3, rows: 3 },
+        sprite: { src: "assets/previews/shoes/shoes-sheet-items-v2.png", cols: 4, rows: 3 },
         options: [
-          ["기본 신발", "basic shoes", "shoes_basic.png", "단순한 기본 신발"],
-          ["슬리퍼", "slippers", "shoes_slippers.png", "편한 슬리퍼"],
-          ["스니커즈", "sneakers", "shoes_sneakers.png", "활동적인 스니커즈"],
-          ["구두", "dress shoes", "shoes_dressshoes.png", "단정한 구두"],
-          ["부츠", "boots", "shoes_boots.png", "발목을 감싸는 부츠"],
-          ["샌들", "sandals", "shoes_sandals.png", "시원한 샌들"],
-          ["로퍼", "loafers", "shoes_loafers.png", "캐주얼한 로퍼"],
-          ["힐", "heels", "shoes_heels.png", "굽이 있는 신발"],
-          ["플랫슈즈", "flats", "shoes_flats.png", "낮고 편한 플랫슈즈"]
+          ["기본 신발", "basic shoes", "shoes_basic.png", "단순한 기본 신발", 0, 0],
+          ["슬리퍼", "slippers", "shoes_slippers.png", "편한 슬리퍼", 1, 0],
+          ["스니커즈", "sneakers", "shoes_sneakers.png", "활동적인 스니커즈", 2, 0],
+          ["구두", "dress shoes", "shoes_dressshoes.png", "단정한 구두", 0, 1],
+          ["부츠", "boots", "shoes_boots.png", "발목을 감싸는 부츠", 1, 1],
+          ["샌들", "sandals", "shoes_sandals.png", "시원한 샌들", 2, 1],
+          ["로퍼", "loafers", "shoes_loafers.png", "캐주얼한 로퍼", 0, 2],
+          ["힐", "heels", "shoes_heels.png", "굽이 있는 신발", 1, 2],
+          ["플랫슈즈", "flats", "shoes_flats.png", "낮고 편한 플랫슈즈", 2, 2],
+          ["운동화", "white athletic running shoes", "shoes_running.png", "흰색 러닝 운동화", 3, 2]
         ]
       },
-      
+      {
+        key: "shoesColor",
+        label: "신발 색",
+        folder: "shoes",
+        rule: "신발 색만 변경",
+        desc: "선택한 신발의 색상만 바꾸는 옵션입니다.",
+        template: "Keep this exact same character (same face, body, pose, lighting, white background). Change ONLY the shoe color to: {value}. Full body, front view, centered, plain white background, no text.",
+        colorOnly: true,
+        options: [
+          ["흰색", "white shoe color", "shoescolor_white.png", "깨끗한 흰색 신발", "white"],
+          ["검정", "black shoe color", "shoescolor_black.png", "단정한 검정 신발", "black"],
+          ["빨강", "red shoe color", "shoescolor_red.png", "눈에 띄는 빨강 신발", "red"],
+          ["주황", "orange shoe color", "shoescolor_orange.png", "밝은 주황 신발", "orange"],
+          ["노랑", "yellow shoe color", "shoescolor_yellow.png", "선명한 노랑 신발", "yellow"],
+          ["초록", "green shoe color", "shoescolor_green.png", "산뜻한 초록 신발", "green"],
+          ["파랑", "blue shoe color", "shoescolor_blue.png", "깔끔한 파랑 신발", "blue"],
+          ["보라", "purple shoe color", "shoescolor_purple.png", "부드러운 보라 신발", "purple"],
+          ["분홍", "pink shoe color", "shoescolor_pink.png", "화사한 분홍 신발", "pink"],
+          ["회색", "gray shoe color", "shoescolor_gray.png", "차분한 회색 신발", "gray"],
+          ["갈색", "brown shoe color", "shoescolor_brown.png", "따뜻한 갈색 신발", "brown"],
+          ["민트", "mint shoe color", "shoescolor_mint.png", "상쾌한 민트색 신발", "mint"]
+        ]
+      },
+
     ];
 
     const modeExtras = {
@@ -1194,16 +1271,22 @@
       "hair",
       "glasses",
       "top",
+      "topColor",
       "bottom",
-      "shoes"
+      "bottomColor",
+      "shoes",
+      "shoesColor"
     ];
     categories.sort((a, b) => categoryOrder.indexOf(a.key) - categoryOrder.indexOf(b.key));
     const initialSelections = Object.fromEntries(categories.map(category => [category.key, null]));
     const defaultSelections = {
       ...initialSelections,
       top: optionIndexByEnglish("top", "T-shirt"),
+      topColor: optionIndexByEnglish("topColor", "white top color"),
       bottom: optionIndexByEnglish("bottom", "pants"),
-      shoes: optionIndexByEnglish("shoes", "basic shoes")
+      bottomColor: optionIndexByEnglish("bottomColor", "white bottom color"),
+      shoes: optionIndexByEnglish("shoes", "basic shoes"),
+      shoesColor: optionIndexByEnglish("shoesColor", "white shoe color")
     };
     let state = loadState();
     let activeCategory = state.activeCategory || "gender";
@@ -1228,6 +1311,8 @@
     const resetActive = document.querySelector("#resetActive");
     const resetAll = document.querySelector("#resetAll");
     const copySelectedImages = document.querySelector("#copySelectedImages");
+    const copyEnglishWithImages = document.querySelector("#copyEnglishWithImages");
+    const copyKoreanWithImages = document.querySelector("#copyKoreanWithImages");
 
     document.querySelectorAll("[data-mode]").forEach(button => {
       button.addEventListener("click", () => {
@@ -1246,6 +1331,8 @@
     });
 
     copySelectedImages.addEventListener("click", copySelectedImageSet);
+    copyEnglishWithImages.addEventListener("click", () => copyPromptWithSelectedImages("english"));
+    copyKoreanWithImages.addEventListener("click", () => copyPromptWithSelectedImages("korean"));
 
     resetActive.addEventListener("click", () => {
       state.selections[activeCategory] = null;
@@ -1519,7 +1606,7 @@
       summary.textContent = entries.length
         ? entries.map(({ category, option }) => `${category.label}: ${option.ko}`).join("\n")
         : "선택된 항목이 없습니다.\n필요한 카테고리를 눌러 옵션을 선택해 주세요.";
-      basePrompt.textContent = `BASE 생성 프롬프트: ${basePromptText}`;
+      basePrompt.textContent = `영어 예시: ${samplePromptEn}\n\n한글 예시: ${samplePromptKo}`;
     }
 
     function selectedEntries() {
@@ -1538,8 +1625,11 @@
         if (category.key === "graphic") return `overall visual style: ${option.en}`;
         if (category.key === "age") return `${option.en} apparent age`;
         if (category.key === "top") return `wearing ${option.en}`;
+        if (category.key === "topColor") return `top clothing color: ${option.en}`;
         if (category.key === "bottom") return option.en;
+        if (category.key === "bottomColor") return `bottom clothing color: ${option.en}`;
         if (category.key === "shoes") return `wearing ${option.en}`;
+        if (category.key === "shoesColor") return `shoe color: ${option.en}`;
         return option.en;
       }).filter(Boolean);
     }
@@ -1653,8 +1743,11 @@
         age: "#64748b",
         glasses: "#1f2937",
         top: "#0f9f9a",
+        topColor: "#0f9f9a",
         bottom: "#3b82f6",
-        shoes: "#ff6b6b"
+        bottomColor: "#3b82f6",
+        shoes: "#ff6b6b",
+        shoesColor: "#ff6b6b"
       };
       return palette[key] || "#0f9f9a";
     }
@@ -1700,9 +1793,49 @@
       }
     }
 
+    async function copyPromptWithSelectedImages(language) {
+      const prompt = language === "korean" ? koreanPrompt.value : mainPrompt.value;
+      const title = language === "korean" ? "한글 프롬프트" : "English prompt";
+      const entries = selectedImageEntriesForCopy();
+
+      if (!prompt.trim()) {
+        showToast("복사할 프롬프트가 없어요.");
+        return;
+      }
+
+      if (!entries.length) {
+        await copyText(prompt);
+        return;
+      }
+
+      if (location.protocol === "file:") {
+        showToast("open-copy-mode.cmd로 열고 다시 복사해 주세요.");
+        return;
+      }
+
+      try {
+        const blob = await selectedImagesBlob(entries);
+        const dataUrl = await blobToDataUrl(blob);
+        const html = `
+          <section>
+            <h3>${escapeHtml(title)}</h3>
+            <p style="white-space:pre-wrap;line-height:1.5;">${escapeHtml(prompt)}</p>
+            <img src="${dataUrl}" alt="선택한 캐릭터 옵션 이미지" style="max-width:100%;height:auto;">
+          </section>
+        `;
+        if (await copyHtmlAndTextToClipboard(html, `${title}\n${prompt}`)) {
+          showToast(`${language === "korean" ? "한글" : "영어"}+선택 이미지를 복사했어요.`);
+          return;
+        }
+        await copyText(`${title}\n${prompt}`);
+      } catch {
+        await copyText(`${title}\n${prompt}`);
+      }
+    }
+
     function selectedImageEntriesForCopy() {
       const start = categories.findIndex(category => category.key === "feeling");
-      const end = categories.findIndex(category => category.key === "bottom");
+      const end = categories.findIndex(category => category.key === "shoesColor");
       const graphicCategory = getCategory("graphic");
       const graphicSelected = getSelected(graphicCategory);
       const graphicEntry = graphicSelected
@@ -1800,6 +1933,51 @@
       } catch {
         return false;
       }
+    }
+
+    async function copyHtmlAndTextToClipboard(html, text) {
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "text/html": new Blob([html], { type: "text/html" }),
+              "text/plain": new Blob([text], { type: "text/plain" })
+            })
+          ]);
+          return true;
+        } catch {}
+      }
+
+      try {
+        const holder = document.createElement("div");
+        holder.contentEditable = "true";
+        holder.style.position = "fixed";
+        holder.style.left = "-9999px";
+        holder.style.top = "0";
+        holder.innerHTML = html;
+        document.body.appendChild(holder);
+
+        const range = document.createRange();
+        range.selectNodeContents(holder);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const copied = document.execCommand("copy");
+        selection.removeAllRanges();
+        holder.remove();
+        return copied;
+      } catch {
+        return false;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     function openImageFallback(blob) {
