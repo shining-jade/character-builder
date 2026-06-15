@@ -274,6 +274,10 @@
     .stage {
       min-width: 0;
       padding: 16px;
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
     }
 
     .stage-head {
@@ -317,13 +321,6 @@
       grid-template-columns: minmax(280px, 1fr) 260px;
       gap: 14px;
       align-items: stretch;
-      position: sticky;
-      top: 16px;
-      z-index: 4;
-      padding-bottom: 14px;
-      background: rgba(255, 255, 255, .97);
-      border-radius: var(--radius);
-      box-shadow: 0 18px 34px rgba(15, 23, 42, .08);
     }
 
     .main-preview {
@@ -868,15 +865,18 @@
         position: static;
       }
 
+      .stage {
+        position: static;
+        max-height: none;
+        overflow: visible;
+      }
+
       .category-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .preview-zone {
         grid-template-columns: 1fr;
-        position: static;
-        padding-bottom: 0;
-        box-shadow: none;
       }
 
       .main-preview {
