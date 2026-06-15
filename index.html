@@ -1486,9 +1486,12 @@
     function renderPrompts() {
       const entries = selectedEntries();
       const extra = modeExtras[mode];
+      const graphicEntry = entries.find(({ category }) => category.key === "graphic");
       const englishParts = buildEnglishParts(entries);
       const koreanParts = entries.map(({ category, option }) => `${category.label} ${option.ko}`);
       const constraintsEn = [
+        graphicEntry ? `Use ${graphicEntry.option.en} as the overall visual style reference for the entire character` : "",
+        graphicEntry ? "Apply this selected graphic style consistently to the face, hair, outfit, and all changed parts" : "",
         "full body",
         "centered composition",
         "plain white background",
@@ -1496,6 +1499,8 @@
         "no unrelated brand names"
       ];
       const constraintsKo = [
+        graphicEntry ? `그래픽 종류 '${graphicEntry.option.ko}'를 전체 기준 스타일로 적용` : "",
+        graphicEntry ? "표정, 머리, 의상 등 모든 선택 요소를 같은 그래픽 스타일로 통일" : "",
         `${extra.title} 용도`,
         "전신 캐릭터",
         "가운데 배치",
@@ -1530,6 +1535,7 @@
     function buildEnglishParts(entries) {
       return entries.map(({ category, option }) => {
         if (!option.en) return "";
+        if (category.key === "graphic") return `overall visual style: ${option.en}`;
         if (category.key === "age") return `${option.en} apparent age`;
         if (category.key === "top") return `wearing ${option.en}`;
         if (category.key === "bottom") return option.en;
@@ -1697,7 +1703,12 @@
     function selectedImageEntriesForCopy() {
       const start = categories.findIndex(category => category.key === "feeling");
       const end = categories.findIndex(category => category.key === "bottom");
-      return categories
+      const graphicCategory = getCategory("graphic");
+      const graphicSelected = getSelected(graphicCategory);
+      const graphicEntry = graphicSelected
+        ? [{ category: graphicCategory, option: optionObject(graphicCategory, graphicSelected, selectedIndex(graphicCategory)), role: "그래픽 기준" }]
+        : [];
+      const partEntries = categories
         .slice(start, end + 1)
         .map(category => {
           const selected = getSelected(category);
@@ -1705,6 +1716,7 @@
           return { category, option: optionObject(category, selected, selectedIndex(category)) };
         })
         .filter(Boolean);
+      return [...graphicEntry, ...partEntries];
     }
 
     function selectedImageListText(entries) {
@@ -1851,7 +1863,7 @@
       }
 
       ctx.fillStyle = "#1f2937";
-      ctx.fillText(category.label, x + width / 2, y + mediaH + 18);
+      ctx.fillText(entry.role || category.label, x + width / 2, y + mediaH + 18);
       ctx.fillStyle = "#64748b";
       ctx.fillText(option.ko, x + width / 2, y + mediaH + 40);
     }

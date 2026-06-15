@@ -1,0 +1,9 @@
+*.pdf
+*.xlsx
+*.docx
+_*.jpg
+game_style_character_creator_layout.html
+open-copy-mode.cmd
+output/
+tmp/
+tools/
