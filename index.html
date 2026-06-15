@@ -52,10 +52,116 @@
 
     .topbar {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 16px;
-      align-items: end;
+      align-items: start;
       margin-bottom: 16px;
+    }
+
+    .hero-sample {
+      width: min(360px, 36vw);
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .92);
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 0 10px 22px rgba(31, 41, 55, .08);
+    }
+
+    .hero-sample img {
+      width: 82px;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .hero-sample strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: .9rem;
+      line-height: 1.25;
+    }
+
+    .hero-sample span {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    .sample-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, .62);
+    }
+
+    .sample-modal.open {
+      display: grid;
+    }
+
+    .sample-dialog {
+      width: min(920px, 100%);
+      max-height: min(92vh, 980px);
+      overflow: auto;
+      padding: 16px;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .24);
+    }
+
+    .sample-dialog-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .sample-dialog h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      background: #e8eef5;
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .sample-dialog img {
+      width: 100%;
+      max-height: 58vh;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .sample-dialog-copy {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.55;
+      white-space: pre-line;
+      word-break: keep-all;
     }
 
     h1 {
@@ -677,6 +783,10 @@
         align-items: start;
       }
 
+      .hero-sample {
+        width: 100%;
+      }
+
       .shell {
         grid-template-columns: 1fr;
       }
@@ -728,7 +838,25 @@
         <h1>나만의 캐릭터 프롬프트 빌더</h1>
         <p class="subtitle">고른 항목으로 영어와 한국어 프롬프트를 바로 만들어요.</p>
       </div>
+      <button class="hero-sample" type="button" id="openSampleModal" aria-haspopup="dialog">
+        <img src="assets/completed-sns-character-sample.jpg" alt="">
+        <span>
+          <strong>완성 예시</strong>
+          <span>SNS 프로필 화면 앞 웹툰 스타일 캐릭터</span>
+        </span>
+      </button>
     </header>
+
+    <div class="sample-modal" id="sampleModal" role="dialog" aria-modal="true" aria-labelledby="sampleModalTitle">
+      <div class="sample-dialog">
+        <div class="sample-dialog-head">
+          <h2 id="sampleModalTitle">완성 예시</h2>
+          <button class="icon-btn" type="button" id="closeSampleModal" aria-label="닫기">X</button>
+        </div>
+        <img src="assets/completed-sns-character-sample.jpg" alt="SNS 프로필 화면 앞에 앉아 있는 웹툰 스타일 캐릭터 완성 예시">
+        <p class="sample-dialog-copy" id="sampleModalCopy"></p>
+      </div>
+    </div>
 
     <main class="shell">
       <aside class="panel rail" aria-label="카테고리">
@@ -848,6 +976,7 @@
       "assets/previews/top/top-sheet-items.png": [1448, 1086],
       "assets/previews/bottom/bottom-sheet-items.png": [1254, 1254],
       "assets/previews/shoes/shoes-sheet-items-v2.png": [1672, 1254]
+      ,"assets/previews/usage/usage-sheet.png": [1024, 1024]
     };
 
     const categories = [
@@ -857,14 +986,14 @@
         folder: "usage",
         rule: "결과물 용도와 구성 변경",
         desc: "캐릭터를 어디에 쓸지 정하고, 그 용도에 맞는 프롬프트를 추가합니다.",
-        colorOnly: true,
+        sprite: { src: "assets/previews/usage/usage-sheet.png", cols: 3, rows: 2 },
         options: [
-          ["SNS 프로필", "SNS profile character, clean social profile mood, friendly profile character, square composition", "usage_sns.png", "SNS 프로필 이미지에 어울리는 구성", "blue"],
-          ["스티커", "clean digital sticker character, bold readable silhouette, sticker-like centered composition, no background clutter", "usage_sticker.png", "디지털 스티커처럼 또렷한 실루엣과 단순한 구성", "mint"],
-          ["이모티콘 얼굴 모음", "one emoticon sheet with multiple close-up face expressions of the same character, arranged in a neat grid, different emotions, consistent style, no text", "usage_emoticon_faces.png", "한 장에 여러 얼굴 표정을 격자로 보여주는 이모티콘 시트", "yellow"],
-          ["이모티콘 행동 모음", "one emoticon sheet with multiple full-body action poses of the same character, arranged in a neat grid, expressive gestures, consistent style, no text", "usage_emoticon_actions.png", "한 장에 여러 전신 행동 포즈를 보여주는 이모티콘 시트", "orange"],
-          ["굿즈 캐릭터", "merchandise character illustration, clean centered character, print-friendly composition, simple background, no text", "usage_merch.png", "굿즈 제작에 쓰기 좋은 단독 캐릭터 구성", "purple"],
-          ["교육자료 삽화", "educational material character illustration, clear friendly character, easy-to-understand pose, clean white background, no text", "usage_education.png", "수업 자료와 활동지에 넣기 좋은 삽화 구성", "green"]
+          ["SNS 프로필", "SNS profile character, clean social profile mood, friendly profile character, square composition", "usage_sns.png", "SNS 프로필 이미지에 어울리는 구성", 0, 0],
+          ["스티커", "clean digital sticker character, bold readable silhouette, sticker-like centered composition, no background clutter", "usage_sticker.png", "디지털 스티커처럼 또렷한 실루엣과 단순한 구성", 1, 0],
+          ["이모티콘 얼굴 모음", "one emoticon sheet with multiple close-up face expressions of the same character, arranged in a neat grid, different emotions, consistent style, no text", "usage_emoticon_faces.png", "한 장에 여러 얼굴 표정을 격자로 보여주는 이모티콘 시트", 2, 0],
+          ["이모티콘 행동 모음", "one emoticon sheet with multiple full-body action poses of the same character, arranged in a neat grid, expressive gestures, consistent style, no text", "usage_emoticon_actions.png", "한 장에 여러 전신 행동 포즈를 보여주는 이모티콘 시트", 0, 1],
+          ["굿즈 캐릭터", "merchandise character illustration, clean centered character, print-friendly composition, simple background, no text", "usage_merch.png", "굿즈 제작에 쓰기 좋은 단독 캐릭터 구성", 1, 1],
+          ["교육자료 삽화", "educational material character illustration, clear friendly character, easy-to-understand pose, clean white background, no text", "usage_education.png", "수업 자료와 활동지에 넣기 좋은 삽화 구성", 2, 1]
         ]
       },
       {
@@ -1284,6 +1413,10 @@
     const copySelectedImages = document.querySelector("#copySelectedImages");
     const copyEnglishWithImages = document.querySelector("#copyEnglishWithImages");
     const copyKoreanWithImages = document.querySelector("#copyKoreanWithImages");
+    const openSampleModal = document.querySelector("#openSampleModal");
+    const closeSampleModal = document.querySelector("#closeSampleModal");
+    const sampleModal = document.querySelector("#sampleModal");
+    const sampleModalCopy = document.querySelector("#sampleModalCopy");
 
     document.querySelectorAll("[data-copy-target]").forEach(button => {
       button.addEventListener("click", async () => {
@@ -1295,6 +1428,16 @@
     copySelectedImages.addEventListener("click", copySelectedImageSet);
     copyEnglishWithImages.addEventListener("click", () => copyPromptWithSelectedImages("english"));
     copyKoreanWithImages.addEventListener("click", () => copyPromptWithSelectedImages("korean"));
+    openSampleModal.addEventListener("click", () => {
+      sampleModal.classList.add("open");
+    });
+    closeSampleModal.addEventListener("click", closeSampleDialog);
+    sampleModal.addEventListener("click", event => {
+      if (event.target === sampleModal) closeSampleDialog();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeSampleDialog();
+    });
 
     resetActive.addEventListener("click", () => {
       state.selections[activeCategory] = null;
@@ -2080,6 +2223,11 @@
       }, 1800);
     }
 
+    function closeSampleDialog() {
+      sampleModal.classList.remove("open");
+    }
+
+    sampleModalCopy.textContent = `영어 예시: ${samplePromptEn}\n\n한글 예시: ${samplePromptKo}`;
     render();
   </script>
 </body>
