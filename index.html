@@ -918,8 +918,6 @@
           <button class="action" type="button" data-copy-target="mainPrompt">영어 프롬프트 복사</button>
           <button class="action secondary" type="button" data-copy-target="koreanPrompt">한국어 프롬프트 복사</button>
           <button class="action secondary" type="button" id="copySelectedImages">선택 이미지 복사</button>
-          <button class="action secondary" type="button" id="copyEnglishWithImages">영어+선택 이미지 복사</button>
-          <button class="action secondary" type="button" id="copyKoreanWithImages">한글+선택 이미지 복사</button>
         </div>
         <div class="toast" id="toast" aria-live="polite"></div>
 
@@ -1411,8 +1409,6 @@
     const resetActive = document.querySelector("#resetActive");
     const resetAll = document.querySelector("#resetAll");
     const copySelectedImages = document.querySelector("#copySelectedImages");
-    const copyEnglishWithImages = document.querySelector("#copyEnglishWithImages");
-    const copyKoreanWithImages = document.querySelector("#copyKoreanWithImages");
     const openSampleModal = document.querySelector("#openSampleModal");
     const closeSampleModal = document.querySelector("#closeSampleModal");
     const sampleModal = document.querySelector("#sampleModal");
@@ -1426,8 +1422,6 @@
     });
 
     copySelectedImages.addEventListener("click", copySelectedImageSet);
-    copyEnglishWithImages.addEventListener("click", () => copyPromptWithSelectedImages("english"));
-    copyKoreanWithImages.addEventListener("click", () => copyPromptWithSelectedImages("korean"));
     openSampleModal.addEventListener("click", () => {
       sampleModal.classList.add("open");
     });
@@ -1891,48 +1885,8 @@
       }
     }
 
-    async function copyPromptWithSelectedImages(language) {
-      const prompt = language === "korean" ? koreanPrompt.value : mainPrompt.value;
-      const title = language === "korean" ? "한글 프롬프트" : "English prompt";
-      const entries = selectedImageEntriesForCopy();
-
-      if (!prompt.trim()) {
-        showToast("복사할 프롬프트가 없어요.");
-        return;
-      }
-
-      if (!entries.length) {
-        await copyText(prompt);
-        return;
-      }
-
-      if (location.protocol === "file:") {
-        showToast("open-copy-mode.cmd로 열고 다시 복사해 주세요.");
-        return;
-      }
-
-      try {
-        const blob = await selectedImagesBlob(entries);
-        const dataUrl = await blobToDataUrl(blob);
-        const html = `
-          <section>
-            <h3>${escapeHtml(title)}</h3>
-            <p style="white-space:pre-wrap;line-height:1.5;">${escapeHtml(prompt)}</p>
-            <img src="${dataUrl}" alt="선택한 캐릭터 옵션 이미지" style="max-width:100%;height:auto;">
-          </section>
-        `;
-        if (await copyHtmlAndTextToClipboard(html, `${title}\n${prompt}`)) {
-          showToast(`${language === "korean" ? "한글" : "영어"}+선택 이미지를 복사했어요.`);
-          return;
-        }
-        await copyText(`${title}\n${prompt}`);
-      } catch {
-        await copyText(`${title}\n${prompt}`);
-      }
-    }
-
     function selectedImageEntriesForCopy() {
-      const start = categories.findIndex(category => category.key === "feeling");
+      const start = categories.findIndex(category => category.key === "usage");
       const end = categories.findIndex(category => category.key === "shoesColor");
       const graphicCategory = getCategory("graphic");
       const graphicSelected = getSelected(graphicCategory);
@@ -1942,6 +1896,7 @@
       const partEntries = categories
         .slice(start, end + 1)
         .map(category => {
+          if (category.key === "graphic") return null;
           const selected = getSelected(category);
           if (!selected) return null;
           return { category, option: optionObject(category, selected, selectedIndex(category)) };
@@ -2031,51 +1986,6 @@
       } catch {
         return false;
       }
-    }
-
-    async function copyHtmlAndTextToClipboard(html, text) {
-      if (navigator.clipboard && window.ClipboardItem) {
-        try {
-          await navigator.clipboard.write([
-            new ClipboardItem({
-              "text/html": new Blob([html], { type: "text/html" }),
-              "text/plain": new Blob([text], { type: "text/plain" })
-            })
-          ]);
-          return true;
-        } catch {}
-      }
-
-      try {
-        const holder = document.createElement("div");
-        holder.contentEditable = "true";
-        holder.style.position = "fixed";
-        holder.style.left = "-9999px";
-        holder.style.top = "0";
-        holder.innerHTML = html;
-        document.body.appendChild(holder);
-
-        const range = document.createRange();
-        range.selectNodeContents(holder);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        const copied = document.execCommand("copy");
-        selection.removeAllRanges();
-        holder.remove();
-        return copied;
-      } catch {
-        return false;
-      }
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
     }
 
     function openImageFallback(blob) {
