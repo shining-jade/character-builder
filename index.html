@@ -407,65 +407,69 @@
       position: relative;
     }
 
+    .placeholder-preview.outfit-color-card {
+      aspect-ratio: auto;
+      min-height: 330px;
+      gap: 8px;
+    }
+
     .outfit-color-figure {
       --top-color: #ffffff;
       --bottom-color: #ffffff;
       --shoes-color: #ffffff;
-      width: min(190px, 66%);
-      aspect-ratio: .62;
-      margin: 0 auto 16px;
-      display: grid;
-      grid-template-rows: 34% 30% 20%;
-      align-content: end;
+      width: min(190px, 64%);
+      aspect-ratio: .74;
+      margin: 0 auto 12px;
       position: relative;
-      border-radius: 999px 999px 12px 12px;
-      overflow: hidden;
-      border: 1px solid #dbe4ee;
-      background:
-        radial-gradient(circle at 50% 15%, #f8d1b6 0 22%, transparent 23%),
-        #f8fafc;
-    }
-
-    .outfit-color-figure::before,
-    .outfit-color-figure::after {
-      content: "";
-      position: absolute;
-      top: 14%;
-      width: 4%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: #1f2937;
-      z-index: 2;
+      overflow: visible;
+      background: transparent;
     }
 
     .outfit-color-figure::before {
-      left: 43%;
-    }
-
-    .outfit-color-figure::after {
-      right: 43%;
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 42%;
+      aspect-ratio: 1;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      border: 1px solid rgba(203, 213, 225, .9);
+      background: #f8d1b6;
+      z-index: 1;
     }
 
     .outfit-layer {
-      border-top: 1px solid rgba(15, 23, 42, .12);
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      height: 20%;
+      border: 1px solid rgba(15, 23, 42, .12);
+      border-bottom: 0;
     }
 
     .outfit-layer.top {
+      top: 31%;
+      border-radius: 10px 10px 0 0;
       background: var(--top-color);
     }
 
     .outfit-layer.bottom {
+      top: 51%;
       background: var(--bottom-color);
     }
 
     .outfit-layer.shoes {
+      top: 71%;
+      border-bottom: 1px solid rgba(15, 23, 42, .12);
+      border-radius: 0 0 6px 6px;
       background: var(--shoes-color);
     }
 
     .thumb-media .outfit-color-figure {
-      width: 78%;
-      height: 100%;
-      margin: 0;
+      width: 70%;
+      height: auto;
+      margin: auto;
       aspect-ratio: .62;
     }
 
@@ -1448,6 +1452,7 @@
     const categoryTitle = document.querySelector("#categoryTitle");
     const categoryDesc = document.querySelector("#categoryDesc");
     const filePath = document.querySelector("#filePath");
+    const stagePanel = document.querySelector(".stage");
     const mainPreview = document.querySelector("#mainPreview");
     const optionName = document.querySelector("#optionName");
     const optionDesc = document.querySelector("#optionDesc");
@@ -1548,6 +1553,9 @@
           activeCategory = category.key;
           saveState();
           render();
+          if (window.matchMedia("(min-width: 821px)").matches) {
+            stagePanel.scrollIntoView({ block: "start", behavior: "smooth" });
+          }
         });
         categoryList.appendChild(button);
       });
@@ -1631,7 +1639,7 @@
 
     function outfitColorPreview(option, category) {
       const wrap = document.createElement("div");
-      wrap.className = "placeholder-preview";
+      wrap.className = "placeholder-preview outfit-color-card";
       wrap.appendChild(outfitColorFigure(option, category));
 
       const title = document.createElement("strong");
@@ -2165,26 +2173,22 @@
 
     function drawOutfitColorTile(ctx, entry, x, y, width, mediaH) {
       const colors = outfitLayerColors(entry.option, entry.category);
-      const figureW = width * .46;
+      const figureW = width * .5;
       const figureH = mediaH * .82;
       const fx = x + (width - figureW) / 2;
       const fy = y + 12 + (mediaH - figureH) / 2;
-      const headR = figureW * .2;
-      const layerX = fx + figureW * .18;
-      const layerW = figureW * .64;
-      const topY = fy + figureH * .35;
+      const headR = figureW * .21;
+      const layerX = fx + figureW * .1;
+      const layerW = figureW * .8;
+      const topY = fy + figureH * .31;
       const layerH = figureH * .2;
-
-      ctx.fillStyle = "#ffffff";
-      roundRect(ctx, fx, fy, figureW, figureH, 8);
-      ctx.fill();
-      ctx.strokeStyle = "#d8e0e8";
-      ctx.stroke();
 
       ctx.fillStyle = "#f8d1b6";
       ctx.beginPath();
-      ctx.arc(fx + figureW / 2, fy + figureH * .18, headR, 0, Math.PI * 2);
+      ctx.arc(fx + figureW / 2, fy + headR, headR, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = "rgba(203, 213, 225, .9)";
+      ctx.stroke();
 
       [["top", colors.top], ["bottom", colors.bottom], ["shoes", colors.shoes]].forEach(([key, color], index) => {
         ctx.fillStyle = color;
