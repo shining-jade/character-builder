@@ -407,6 +407,68 @@
       position: relative;
     }
 
+    .outfit-color-figure {
+      --top-color: #ffffff;
+      --bottom-color: #ffffff;
+      --shoes-color: #ffffff;
+      width: min(190px, 66%);
+      aspect-ratio: .62;
+      margin: 0 auto 16px;
+      display: grid;
+      grid-template-rows: 34% 30% 20%;
+      align-content: end;
+      position: relative;
+      border-radius: 999px 999px 12px 12px;
+      overflow: hidden;
+      border: 1px solid #dbe4ee;
+      background:
+        radial-gradient(circle at 50% 15%, #f8d1b6 0 22%, transparent 23%),
+        #f8fafc;
+    }
+
+    .outfit-color-figure::before,
+    .outfit-color-figure::after {
+      content: "";
+      position: absolute;
+      top: 14%;
+      width: 4%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #1f2937;
+      z-index: 2;
+    }
+
+    .outfit-color-figure::before {
+      left: 43%;
+    }
+
+    .outfit-color-figure::after {
+      right: 43%;
+    }
+
+    .outfit-layer {
+      border-top: 1px solid rgba(15, 23, 42, .12);
+    }
+
+    .outfit-layer.top {
+      background: var(--top-color);
+    }
+
+    .outfit-layer.bottom {
+      background: var(--bottom-color);
+    }
+
+    .outfit-layer.shoes {
+      background: var(--shoes-color);
+    }
+
+    .thumb-media .outfit-color-figure {
+      width: 78%;
+      height: 100%;
+      margin: 0;
+      aspect-ratio: .62;
+    }
+
     .placeholder-preview strong {
       display: block;
       font-size: 1rem;
@@ -902,7 +964,7 @@
 
         <div class="prompt-block">
           <div class="prompt-title">
-            <span>완성 이미지 프롬프트 (영어)</span>
+            <span>영어 프롬프트</span>
           </div>
           <textarea id="mainPrompt" readonly></textarea>
         </div>
@@ -1353,7 +1415,7 @@
 
     ];
 
-    const stateKey = "gameStyleCharacterBuilderStateV5";
+    const stateKey = "gameStyleCharacterBuilderStateV7";
     const localAppUrl = "http://localhost:8787/index.html";
     const categoryOrder = [
       "usage",
@@ -1377,16 +1439,7 @@
     ];
     categories.sort((a, b) => categoryOrder.indexOf(a.key) - categoryOrder.indexOf(b.key));
     const initialSelections = Object.fromEntries(categories.map(category => [category.key, null]));
-    const defaultSelections = {
-      ...initialSelections,
-      usage: optionIndexByEnglish("usage", "SNS profile character, clean social profile mood, friendly profile character, square composition"),
-      top: optionIndexByEnglish("top", "T-shirt"),
-      topColor: optionIndexByEnglish("topColor", "white top color"),
-      bottom: optionIndexByEnglish("bottom", "pants"),
-      bottomColor: optionIndexByEnglish("bottomColor", "white bottom color"),
-      shoes: optionIndexByEnglish("shoes", "basic shoes"),
-      shoesColor: optionIndexByEnglish("shoesColor", "white shoe color")
-    };
+    const defaultSelections = { ...initialSelections };
     let state = loadState();
     let activeCategory = state.activeCategory || "usage";
 
@@ -1544,7 +1597,7 @@
       }
 
       if (category.colorOnly || option.swatch) {
-        mainPreview.appendChild(colorPreview(option, category));
+        mainPreview.appendChild(isOutfitColorCategory(category) ? outfitColorPreview(option, category) : colorPreview(option, category));
         return;
       }
 
@@ -1574,6 +1627,58 @@
         <span>${category.label}은 이미지 파일 없이 색상 스와치와 프롬프트 값으로 처리합니다.</span>
       `;
       return wrap;
+    }
+
+    function outfitColorPreview(option, category) {
+      const wrap = document.createElement("div");
+      wrap.className = "placeholder-preview";
+      wrap.appendChild(outfitColorFigure(option, category));
+
+      const title = document.createElement("strong");
+      title.textContent = option.ko;
+      const desc = document.createElement("span");
+      desc.textContent = "위에서부터 상의 색, 하의 색, 신발 색입니다. 현재 선택한 색은 해당 층에만 반영됩니다.";
+      wrap.append(title, desc);
+      return wrap;
+    }
+
+    function outfitColorFigure(option, category) {
+      const figure = document.createElement("div");
+      figure.className = "outfit-color-figure";
+      const colors = outfitLayerColors(option, category);
+      figure.style.setProperty("--top-color", colors.top);
+      figure.style.setProperty("--bottom-color", colors.bottom);
+      figure.style.setProperty("--shoes-color", colors.shoes);
+      figure.innerHTML = `
+        <div class="outfit-layer top"></div>
+        <div class="outfit-layer bottom"></div>
+        <div class="outfit-layer shoes"></div>
+      `;
+      return figure;
+    }
+
+    function outfitLayerColors(option, category) {
+      const layer = {
+        top: selectedSwatch("topColor"),
+        bottom: selectedSwatch("bottomColor"),
+        shoes: selectedSwatch("shoesColor")
+      };
+      if (category.key === "topColor") layer.top = option.swatch || layer.top;
+      if (category.key === "bottomColor") layer.bottom = option.swatch || layer.bottom;
+      if (category.key === "shoesColor") layer.shoes = option.swatch || layer.shoes;
+      return layer;
+    }
+
+    function selectedSwatch(categoryKey) {
+      const category = getCategory(categoryKey);
+      const selected = getSelected(category);
+      if (!selected) return "#ffffff";
+      const option = optionObject(category, selected, selectedIndex(category));
+      return option.swatch || "#ffffff";
+    }
+
+    function isOutfitColorCategory(category) {
+      return ["topColor", "bottomColor", "shoesColor"].includes(category.key);
     }
 
     function placeholder(option, category) {
@@ -1626,7 +1731,9 @@
         const media = document.createElement("div");
         media.className = "thumb-media";
 
-        if (category.colorOnly || option.swatch) {
+        if (isOutfitColorCategory(category)) {
+          media.appendChild(outfitColorFigure(option, category));
+        } else if (category.colorOnly || option.swatch) {
           const swatch = document.createElement("div");
           swatch.className = "swatch";
           swatch.style.setProperty("--swatch", option.swatch || "#0f9f9a");
@@ -1690,10 +1797,10 @@
 
       mainPrompt.value = englishParts.length
         ? cleanPrompt([...englishParts, ...constraintsEn])
-        : "카테고리별 옵션을 선택하면 완성 이미지 프롬프트가 생성됩니다.";
+        : "";
       koreanPrompt.value = koreanParts.length
         ? cleanPromptKo([...koreanParts, ...constraintsKo])
-        : "카테고리별 옵션을 선택하면 한국어 프롬프트가 생성됩니다.";
+        : "";
       summary.textContent = entries.length
         ? entries.map(({ category, option }) => `${category.label}: ${option.ko}`).join("\n")
         : "선택된 항목이 없습니다.\n필요한 카테고리를 눌러 옵션을 선택해 주세요.";
@@ -2042,6 +2149,8 @@
           drawW,
           drawH
         );
+      } else if (isOutfitColorCategory(category)) {
+        drawOutfitColorTile(ctx, entry, x, y, width, mediaH);
       } else {
         ctx.fillStyle = option.swatch || "#eef3f7";
         roundRect(ctx, x + 16, y + 18, width - 32, mediaH - 28, 8);
@@ -2052,6 +2161,37 @@
       ctx.fillText(entry.role || category.label, x + width / 2, y + mediaH + 18);
       ctx.fillStyle = "#64748b";
       ctx.fillText(option.ko, x + width / 2, y + mediaH + 40);
+    }
+
+    function drawOutfitColorTile(ctx, entry, x, y, width, mediaH) {
+      const colors = outfitLayerColors(entry.option, entry.category);
+      const figureW = width * .46;
+      const figureH = mediaH * .82;
+      const fx = x + (width - figureW) / 2;
+      const fy = y + 12 + (mediaH - figureH) / 2;
+      const headR = figureW * .2;
+      const layerX = fx + figureW * .18;
+      const layerW = figureW * .64;
+      const topY = fy + figureH * .35;
+      const layerH = figureH * .2;
+
+      ctx.fillStyle = "#ffffff";
+      roundRect(ctx, fx, fy, figureW, figureH, 8);
+      ctx.fill();
+      ctx.strokeStyle = "#d8e0e8";
+      ctx.stroke();
+
+      ctx.fillStyle = "#f8d1b6";
+      ctx.beginPath();
+      ctx.arc(fx + figureW / 2, fy + figureH * .18, headR, 0, Math.PI * 2);
+      ctx.fill();
+
+      [["top", colors.top], ["bottom", colors.bottom], ["shoes", colors.shoes]].forEach(([key, color], index) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(layerX, topY + index * layerH, layerW, layerH);
+        ctx.strokeStyle = "rgba(15, 23, 42, .18)";
+        ctx.strokeRect(layerX, topY + index * layerH, layerW, layerH);
+      });
     }
 
     function spriteCell(category, spriteSource, option) {
