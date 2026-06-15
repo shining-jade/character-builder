@@ -72,32 +72,6 @@
       word-break: keep-all;
     }
 
-    .tabs {
-      display: inline-grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      padding: 5px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .82);
-      box-shadow: 0 8px 18px rgba(31, 41, 55, .08);
-    }
-
-    .tabs button {
-      min-width: 118px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: transparent;
-      color: var(--muted);
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .tabs button.active {
-      background: var(--teal);
-      color: #fff;
-    }
-
     .shell {
       display: grid;
       grid-template-columns: 216px minmax(0, 1fr) 390px;
@@ -666,7 +640,7 @@
       width: 100%;
       max-height: 210px;
       object-fit: contain;
-      background: #050505;
+      background: #fff;
       border-radius: var(--radius);
       border: 1px solid var(--line);
     }
@@ -701,10 +675,6 @@
       .topbar {
         grid-template-columns: 1fr;
         align-items: start;
-      }
-
-      .tabs {
-        width: 100%;
       }
 
       .shell {
@@ -758,10 +728,6 @@
         <h1>나만의 캐릭터 프롬프트 빌더</h1>
         <p class="subtitle">고른 항목으로 영어와 한국어 프롬프트를 바로 만들어요.</p>
       </div>
-      <nav class="tabs" aria-label="결과 유형">
-        <button type="button" class="active" data-mode="sns">SNS 캐릭터</button>
-        <button type="button" data-mode="sticker">스티커</button>
-      </nav>
     </header>
 
     <main class="shell">
@@ -831,7 +797,7 @@
 
         <div class="sample">
           <p class="step">완성 예시</p>
-          <img src="_010e8c9c-0a45-40e3-b171-713a24c799b7.jpg" alt="SNS 프로필 화면 앞에 앉아 있는 웹툰 스타일 캐릭터 완성 예시">
+          <img src="assets/completed-sns-character-sample.jpg" alt="SNS 프로필 화면 앞에 앉아 있는 웹툰 스타일 캐릭터 완성 예시">
           <p class="base-prompt" id="basePrompt"></p>
         </div>
       </aside>
@@ -885,6 +851,22 @@
     };
 
     const categories = [
+      {
+        key: "usage",
+        label: "활용 유형",
+        folder: "usage",
+        rule: "결과물 용도와 구성 변경",
+        desc: "캐릭터를 어디에 쓸지 정하고, 그 용도에 맞는 프롬프트를 추가합니다.",
+        colorOnly: true,
+        options: [
+          ["SNS 프로필", "SNS profile character, clean social profile mood, friendly profile character, square composition", "usage_sns.png", "SNS 프로필 이미지에 어울리는 구성", "blue"],
+          ["스티커", "clean digital sticker character, bold readable silhouette, sticker-like centered composition, no background clutter", "usage_sticker.png", "디지털 스티커처럼 또렷한 실루엣과 단순한 구성", "mint"],
+          ["이모티콘 얼굴 모음", "one emoticon sheet with multiple close-up face expressions of the same character, arranged in a neat grid, different emotions, consistent style, no text", "usage_emoticon_faces.png", "한 장에 여러 얼굴 표정을 격자로 보여주는 이모티콘 시트", "yellow"],
+          ["이모티콘 행동 모음", "one emoticon sheet with multiple full-body action poses of the same character, arranged in a neat grid, expressive gestures, consistent style, no text", "usage_emoticon_actions.png", "한 장에 여러 전신 행동 포즈를 보여주는 이모티콘 시트", "orange"],
+          ["굿즈 캐릭터", "merchandise character illustration, clean centered character, print-friendly composition, simple background, no text", "usage_merch.png", "굿즈 제작에 쓰기 좋은 단독 캐릭터 구성", "purple"],
+          ["교육자료 삽화", "educational material character illustration, clear friendly character, easy-to-understand pose, clean white background, no text", "usage_education.png", "수업 자료와 활동지에 넣기 좋은 삽화 구성", "green"]
+        ]
+      },
       {
         key: "graphic",
         label: "그래픽 종류",
@@ -1244,23 +1226,12 @@
 
     ];
 
-    const modeExtras = {
-      sns: {
-        title: "SNS 캐릭터",
-        promptSuffix: "sitting in front of a clean social media profile screen, friendly profile character, subtle like icons around, square composition"
-      },
-      sticker: {
-        title: "스티커",
-        promptSuffix: "as a clean sticker character, bold readable silhouette, centered, isolated subject, no text"
-      }
-    };
-
     const stateKey = "gameStyleCharacterBuilderStateV5";
     const localAppUrl = "http://localhost:8787/index.html";
     const categoryOrder = [
+      "usage",
       "gender",
       "age",
-      "sns",
       "graphic",
       "viewpoint",
       "pose",
@@ -1281,6 +1252,7 @@
     const initialSelections = Object.fromEntries(categories.map(category => [category.key, null]));
     const defaultSelections = {
       ...initialSelections,
+      usage: optionIndexByEnglish("usage", "SNS profile character, clean social profile mood, friendly profile character, square composition"),
       top: optionIndexByEnglish("top", "T-shirt"),
       topColor: optionIndexByEnglish("topColor", "white top color"),
       bottom: optionIndexByEnglish("bottom", "pants"),
@@ -1289,8 +1261,7 @@
       shoesColor: optionIndexByEnglish("shoesColor", "white shoe color")
     };
     let state = loadState();
-    let activeCategory = state.activeCategory || "gender";
-    let mode = state.mode || "sns";
+    let activeCategory = state.activeCategory || "usage";
 
     const categoryList = document.querySelector("#categoryList");
     const categoryCount = document.querySelector("#categoryCount");
@@ -1313,15 +1284,6 @@
     const copySelectedImages = document.querySelector("#copySelectedImages");
     const copyEnglishWithImages = document.querySelector("#copyEnglishWithImages");
     const copyKoreanWithImages = document.querySelector("#copyKoreanWithImages");
-
-    document.querySelectorAll("[data-mode]").forEach(button => {
-      button.addEventListener("click", () => {
-        mode = button.dataset.mode;
-        state.mode = mode;
-        saveState();
-        render();
-      });
-    });
 
     document.querySelectorAll("[data-copy-target]").forEach(button => {
       button.addEventListener("click", async () => {
@@ -1352,11 +1314,10 @@
         const selections = normalizeSelections(saved.selections || {});
         return {
           selections,
-          activeCategory: getCategory(saved.activeCategory || "gender").key,
-          mode: saved.mode || "sns"
+          activeCategory: getCategory(saved.activeCategory || "usage").key
         };
       } catch {
-        return { selections: { ...defaultSelections }, activeCategory: "gender", mode: "sns" };
+        return { selections: { ...defaultSelections }, activeCategory: "usage" };
       }
     }
 
@@ -1373,22 +1334,14 @@
     function saveState() {
       localStorage.setItem(stateKey, JSON.stringify({
         selections: state.selections,
-        activeCategory,
-        mode
+        activeCategory
       }));
     }
 
     function render() {
-      renderTabs();
       renderCategories();
       renderStage();
       renderPrompts();
-    }
-
-    function renderTabs() {
-      document.querySelectorAll("[data-mode]").forEach(button => {
-        button.classList.toggle("active", button.dataset.mode === mode);
-      });
     }
 
     function renderCategories() {
@@ -1572,11 +1525,12 @@
 
     function renderPrompts() {
       const entries = selectedEntries();
-      const extra = modeExtras[mode];
       const graphicEntry = entries.find(({ category }) => category.key === "graphic");
+      const usageEntry = entries.find(({ category }) => category.key === "usage");
       const englishParts = buildEnglishParts(entries);
       const koreanParts = entries.map(({ category, option }) => `${category.label} ${option.ko}`);
       const constraintsEn = [
+        usageEntry ? usageEntry.option.en : "",
         graphicEntry ? `Use ${graphicEntry.option.en} as the overall visual style reference for the entire character` : "",
         graphicEntry ? "Apply this selected graphic style consistently to the face, hair, outfit, and all changed parts" : "",
         "full body",
@@ -1586,9 +1540,9 @@
         "no unrelated brand names"
       ];
       const constraintsKo = [
+        usageEntry ? `활용 유형 '${usageEntry.option.ko}'에 맞는 구성` : "",
         graphicEntry ? `그래픽 종류 '${graphicEntry.option.ko}'를 전체 기준 스타일로 적용` : "",
         graphicEntry ? "표정, 머리, 의상 등 모든 선택 요소를 같은 그래픽 스타일로 통일" : "",
-        `${extra.title} 용도`,
         "전신 캐릭터",
         "가운데 배치",
         "흰 배경",
@@ -1598,7 +1552,7 @@
       ];
 
       mainPrompt.value = englishParts.length
-        ? cleanPrompt([...englishParts, extra.promptSuffix, ...constraintsEn])
+        ? cleanPrompt([...englishParts, ...constraintsEn])
         : "카테고리별 옵션을 선택하면 완성 이미지 프롬프트가 생성됩니다.";
       koreanPrompt.value = koreanParts.length
         ? cleanPromptKo([...koreanParts, ...constraintsKo])
@@ -1622,6 +1576,7 @@
     function buildEnglishParts(entries) {
       return entries.map(({ category, option }) => {
         if (!option.en) return "";
+        if (category.key === "usage") return "";
         if (category.key === "graphic") return `overall visual style: ${option.en}`;
         if (category.key === "age") return `${option.en} apparent age`;
         if (category.key === "top") return `wearing ${option.en}`;
