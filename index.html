@@ -317,6 +317,13 @@
       grid-template-columns: minmax(280px, 1fr) 260px;
       gap: 14px;
       align-items: stretch;
+      position: sticky;
+      top: 16px;
+      z-index: 4;
+      padding-bottom: 14px;
+      background: rgba(255, 255, 255, .97);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 34px rgba(15, 23, 42, .08);
     }
 
     .main-preview {
@@ -867,6 +874,9 @@
 
       .preview-zone {
         grid-template-columns: 1fr;
+        position: static;
+        padding-bottom: 0;
+        box-shadow: none;
       }
 
       .main-preview {
@@ -1452,7 +1462,6 @@
     const categoryTitle = document.querySelector("#categoryTitle");
     const categoryDesc = document.querySelector("#categoryDesc");
     const filePath = document.querySelector("#filePath");
-    const stagePanel = document.querySelector(".stage");
     const mainPreview = document.querySelector("#mainPreview");
     const optionName = document.querySelector("#optionName");
     const optionDesc = document.querySelector("#optionDesc");
@@ -1553,9 +1562,6 @@
           activeCategory = category.key;
           saveState();
           render();
-          if (window.matchMedia("(min-width: 821px)").matches) {
-            stagePanel.scrollIntoView({ block: "start", behavior: "smooth" });
-          }
         });
         categoryList.appendChild(button);
       });
