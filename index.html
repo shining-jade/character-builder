@@ -180,7 +180,7 @@
 
     .shell {
       display: grid;
-      grid-template-columns: 216px minmax(0, 1fr) 390px;
+      grid-template-columns: 216px minmax(0, 1fr) minmax(340px, 390px);
       gap: 16px;
       align-items: start;
     }
@@ -738,6 +738,7 @@
       top: 16px;
       display: grid;
       gap: 13px;
+      min-width: 0;
     }
 
     .summary {
@@ -770,6 +771,7 @@
     textarea {
       width: 100%;
       min-height: 116px;
+      max-height: 28vh;
       resize: vertical;
       padding: 12px;
       border: 1px solid var(--line);
@@ -786,8 +788,8 @@
     }
 
     .btn-row {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
     }
 
@@ -798,6 +800,8 @@
       background: var(--ink);
       color: #fff;
       font-weight: 900;
+      white-space: normal;
+      word-break: keep-all;
     }
 
     .action.secondary {
@@ -838,7 +842,58 @@
 
     @media (max-width: 1180px) {
       .shell {
-        grid-template-columns: 190px minmax(0, 1fr);
+        grid-template-columns: 176px minmax(340px, 1fr) minmax(288px, 320px);
+        gap: 12px;
+      }
+
+      .result {
+        padding: 14px;
+      }
+
+      .rail {
+        padding: 12px;
+      }
+
+      .category-btn {
+        min-height: 40px;
+        padding: 9px 10px;
+      }
+
+      .preview-zone {
+        grid-template-columns: 1fr;
+      }
+
+      .main-preview {
+        min-height: 320px;
+      }
+
+      .detail-card {
+        min-height: 0;
+      }
+
+      .thumb-grid {
+        grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));
+        gap: 8px;
+      }
+
+      .thumb {
+        min-height: 116px;
+        grid-template-rows: 82px auto;
+      }
+
+      .summary {
+        max-height: 36vh;
+        overflow: auto;
+      }
+
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .shell {
+        grid-template-columns: 168px minmax(0, 1fr);
       }
 
       .result {
