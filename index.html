@@ -986,6 +986,8 @@
         position: static;
         max-height: none;
         overflow: visible;
+        display: flex;
+        flex-direction: column;
       }
 
       .category-list {
@@ -993,10 +995,25 @@
       }
 
       .preview-zone {
-        grid-template-columns: 1fr;
+        display: contents;
+      }
+
+      .stage-head {
+        order: 0;
+      }
+
+      .detail-card {
+        order: 1;
+      }
+
+      .thumb-section {
+        order: 2;
+        margin-top: 12px;
       }
 
       .main-preview {
+        order: 3;
+        margin-top: 14px;
         min-height: 340px;
       }
 
@@ -1684,8 +1701,14 @@
       updateMobilePanel();
       if (!shouldScroll || !mobileQuery.matches) return;
 
-      const target = panel === "options" ? document.querySelector(".stage") : document.querySelector(".rail");
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      const target = panel === "options" ? document.querySelector(".stage") : activeCategoryButton();
+      const block = panel === "options" ? "start" : "center";
+      target.scrollIntoView({ behavior: "auto", block });
+    }
+
+    function activeCategoryButton() {
+      return [...categoryList.querySelectorAll(".category-btn")]
+        .find(button => button.dataset.categoryKey === activeCategory) || document.querySelector(".rail");
     }
 
     function updateMobilePanel() {
@@ -1825,6 +1848,7 @@
         const selected = getSelected(category);
         const button = document.createElement("button");
         button.type = "button";
+        button.dataset.categoryKey = category.key;
         button.className = `category-btn${category.key === activeCategory ? " active" : ""}`;
         const selectedLabel = selected ? selected[0] : "";
         button.innerHTML = `<span>${category.label}</span><small class="${selected ? "" : "empty"}">${selectedLabel}</small>`;
